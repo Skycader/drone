@@ -1,0 +1,324 @@
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<body>
+
+<div class="main">
+	<div class="button"><div class="item">Mantaeacagiracle</div></div>
+	
+	<div class="button"><div onclick='accf()' id='speed' class="item">Speed: 0 km/h</div></div>
+	
+	<div class="button"><div onclick='accf()' id='height' class="item">Height: 0 km</div></div>
+	<div class="button"><div onclick='accf()' id='climb' class="item">Climb speed: 0 m/s | 0 km/h</div></div>
+	<div class="button"> <center style='display: flex; justify-content: center; flex-wrap: nowrap;'><div id='angle'>Angle of rise: 0° </div><div id='angle2' style='-webkit-transform-origin: 50% 100%; margin-left: 20px; transform: rotate(90deg)'>| </div></center>  
+    <input type="range" id='myRange' class='item' min="-90" max="90" value="0"></div>
+	<div class="button"><div id='total' class="item">Total went: 0 km</div></div>
+	<div class="button"><div id='break' class="item">Break distance: 0 km / 0 m</div></div>
+	<div class="button"><div id='time' class="item">Time on go: 0 h</div></div>
+		<div class="button"><div style='width: 0px; height: 0px;' >Engine status</div>
+			<div class="item">
+	
+	<div class="onoffswitch">
+    <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" tabindex="0">
+    <label class="onoffswitch-label" for="myonoffswitch">
+        <span class="onoffswitch-inner"></span>
+        <span class="onoffswitch-switch"></span>
+    </label>
+</div>
+
+	
+	</div>
+</div>
+		<div class="button"><div style='width: 0px; height: 0px;' >Safe Mode</div>
+			<div class="item">
+	 
+	<div class="onoffswitch">
+    <input type="checkbox" name="onoffswitch2" class="onoffswitch-checkbox" id="myonoffswitch2" tabindex="1">
+    <label class="onoffswitch-label" for="myonoffswitch2">
+        <span class="onoffswitch-inner"></span>
+        <span class="onoffswitch-switch"></span>
+    </label>
+</div>
+
+	
+	</div>
+</div>
+<div onclick='spls()' style='overflow: hidden' class="button"><div style='justify-content: left; border: 0px solid red;' class="item"><div id='inner' style='position: relative; width: 250px; display: flex; justify-content: center'><img style="position: relative; transition-duration: 1s; transition-timing-function: linear; padding-left: 24px; opacity: 1; width: 250px;" src='162.png'></img>162</div><div id='progress' style=" width: 0%;  height: 44px; transition-duration: 1s; transition-timing-function: linear;"></div></div></div>
+</div>
+
+</body>
+</html>
+<style>
+#progress {
+background: red;
+}
+.item {
+display: flex;
+width: 100%;
+height: 100%;
+align-items: center;
+justify-content: center;
+}
+.button {
+border: 2px solid;
+ 
+padding: 20px;
+width: 250px;
+height: 40px;
+margin: 10px;
+}
+.main {
+
+width: 100%;
+height: 100%;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+flex-wrap: wrap;
+}
+</style>
+
+<script>
+var slider = document.getElementById("myRange");
+slider.oninput = function() {
+   document.querySelector("#angle").innerHTML = "Angle of rise: " + this.value + "°";
+   angle = this.value;
+if ((height <= 0)&&(angle<0)) {
+	angle = 0;
+	document.querySelector("#angle").innerHTML = "Angle of rise: " + angle + "°";
+	}
+	
+	fuckit = -1*angle;
+	fuckit+=90;
+	document.querySelector('#angle2').style.transform = "rotate("+fuckit+"deg)"
+
+
+}
+
+
+document.querySelector('.onoffswitch-checkbox').addEventListener('click', function(event) {
+startEngine();
+});
+document.querySelector('#myonoffswitch2').addEventListener('click', function(event) {
+safeMode();
+});
+
+function safeMode(){
+safe = safe == 0 ? 1 : 0;
+}
+
+let safe = 0; //safe mode ups the plane if engine is off and speed > 110
+let cs = 0; //current speed;
+let acc = 0; //acceleration speed;
+let ttl = 0; //total went;
+let ls = 0; //last second of work start;
+let st = 0; //status - working if 1;
+let pls = 163; //speed visualization distance;
+let height = 0; //Height
+let angle =  0; //Angle of the plane 
+let tc = 0; //total cycles;
+
+let accv = 5; //accelaration km/h in sec;
+let maxspeed = 400; //max speed in km;
+
+//Every second to acceleration 1/6 km/h added if accelerating;
+//So we need to check how many seconds have passed and multiply x seconds by 1/6 and then add this amount to current speed;
+//sp - seconds passed;
+function sp(){
+	return (Date.now()-ls)/1000;
+	ls = Date.now();
+}
+function addSpeed() {
+
+
+if (st) {
+cs += (accv - 3*accv*(angle/90));
+ } else {
+	cs+= 1*(accv - 3*1*(angle/90))-6;  
+	//console.log('accv: ' + 1*(accv - 2*accv*(angle/90)));  
+	 
+	 
+ }
+ if (cs < 0) {
+ cs = 0;
+ angle = 0;
+ }
+
+ /*
+ if (height < 0) {
+	
+	ls = Date.now();
+	ccl = 0;
+	clearInterval(intervalID);
+	alert("Самолёт на земле.");
+	height = 0;
+	cs = 0;
+ } */
+ /*
+ if (cs < 0) {
+	//console.log("Скорость равна 0, самолёт отсановлен.");
+	cs = 0;
+	ls = Date.now();
+	ccl = 0;
+	//clearInterval(intervalID);
+ }
+ */
+ if ((cs > maxspeed)&&(angle >= 0)) {
+ console.log("!!!");
+	cs-=6;
+ }
+ //Сваливание происходит при 110 км в час
+ if ((cs < 110)&&(height>0)) {
+	 height = height-0.009;
+	 if (angle>-90) {
+	 angle-=10;
+	 console.log("Внимание! Опасное сваливание самолёта!");
+	 }
+ }
+ if ((cs > 110)&&(angle < 0)&&(!st)&&(safe)) {
+	angle = 0;
+	console.log("Автоматическа система выровняла самолёт");
+ }
+ 
+ 
+ if (height<0) {
+	angle = 0;
+ }
+ 
+}
+let intervalID = 0;
+let beg = 0; //begining time
+function startEngine(){
+if (!beg) {
+beg = Date.now();
+}
+
+if (st) {
+	st = 0;
+	
+} else {
+	st = 1;
+	ls = Date.now();
+	clearInterval(intervalID); 
+	intervalID = setInterval(cycle,1000);
+	}
+	
+
+}
+function accf(){
+//accv = 1*prompt("Set acceleration: ");
+maxspeed = 1*prompt("Set max speed: ");
+}
+function spls(){
+pls = prompt("Set visualization speed (162,240, 496, 6090): ");
+document.querySelector("#inner").innerHTML = '<img style="padding-left: 24px; transition-duration: 1s; transition-timing-function: linear; opacity: 0.9; width: 250px;" src="'+pls+'.png"></img>' + pls;
+pls++;
+
+
+}
+function process(){
+
+	ttl += cs/3600;
+	height += (angle/90)*(cs/3600);
+	 if (height<0){ 
+	 
+ height = 0;
+ 
+ if (cs > 300) {
+ alert("Самолёт разбился!");
+ }
+ cs=0;
+ alert("Самолёт на земле!");
+ 
+ ls = Date.now();
+	ccl = 0;
+	clearInterval(intervalID);
+ }
+	//document.querySelector("#progress").style.width = ((((ttl*1000) / (pls*1))*100) % 101) + "%";
+	document.querySelector("img").style["margin-left"] = "-" + ((((ttl*1000) / (pls*1))*100) % 101)*2.74 + "px";
+	
+}
+
+let ccl = 0; //cycles;
+let bd = 0; //break distance;
+let bt = 0; //break time;
+function cycle(){
+
+	if (!st) {
+		bt = cs/(1/6)/60; //break time in hours;
+		bd = (cs/2/3600)*(bt*60);
+		
+		console.log("cs: " + cs);
+		console.log("bt:" + bt);
+		console.log("bd: " + bd);
+	}
+
+	 
+	 addSpeed();
+ 	 process();
+	 ccl++;
+	 
+	 if (ccl > Math.floor*(Date.now()-ls)/1000) {
+		cs = Math.floor((Date.now()-ls)/1000);
+		console.log("Превышение скорости!");
+		}
+	 
+	 while (ccl < Math.floor((Date.now()-ls)/1000)) {
+		addSpeed();
+		process();
+		ccl++; 
+		console.log("Нагоняю...");
+	}	
+	document.querySelector("#angle").innerHTML = "Angle of rise: " + angle + "°";
+	document.querySelector("#speed").innerHTML = "Speed: "+cs.toFixed(3)+" km/h";
+	 
+	document.querySelector("#height").innerHTML = "Height: " + height.toFixed(3) + "km";
+	document.querySelector("#climb").innerHTML = "Climb speed: " + ((((angle/90)*((cs*1000)/3600))/3600)*1000).toFixed(3) + "m/s | " + ((angle/90)*(cs/3600)).toFixed(3) + "km/h";
+	document.querySelector("#total").innerHTML = "Total went: "+ttl.toFixed(3)+" km";
+	document.querySelector("#break").innerHTML = "Break distance: "+bd.toFixed(3)+" km / "+bt.toFixed(3)+" m";
+	document.querySelector("#time").innerHTML = "Time on go: "+((Date.now()-beg)/1000/3600).toFixed(3)+" h";
+}
+
+
+</script>
+
+<style>
+.onoffswitch {
+    position: relative; width: 118px;
+    -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
+}
+.onoffswitch-checkbox {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+.onoffswitch-label {
+    display: block; overflow: hidden; cursor: pointer;
+    height: 36px; padding: 0; line-height: 36px;
+    border: 2px solid #E3E3E3; border-radius: 36px;
+    background-color: #8C8C8C;
+    transition: background-color 0.3s ease-in;
+}
+.onoffswitch-label:before {
+    content: "";
+    display: block; width: 36px; margin: 0px;
+    background: #FFFFFF;
+    position: absolute; top: 0; bottom: 0;
+    right: 80px;
+    border: 2px solid #E3E3E3; border-radius: 36px;
+    transition: all 0.3s ease-in 0s; 
+}
+.onoffswitch-checkbox:checked + .onoffswitch-label {
+    background-color: #267ED1;
+}
+.onoffswitch-checkbox:checked + .onoffswitch-label, .onoffswitch-checkbox:checked + .onoffswitch-label:before {
+   border-color: #267ED1;
+}
+.onoffswitch-checkbox:checked + .onoffswitch-label:before {
+    right: 0px; 
+}
+
+
+</style>
+
+
